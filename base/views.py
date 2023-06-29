@@ -19,7 +19,7 @@ def api_overview(request):
 @api_view(["GET"])
 def posts(request):
     q = request.GET.get("q") if request.GET.get("q") is not None else ""
-    posts = Post.objects.filter(Q(user__icontains=q))
+    posts = Post.objects.filter(Q(user__icontains=q)).order_by("-created")
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
