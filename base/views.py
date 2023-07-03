@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Post
-from .serializers import PostSerializer
+from .models import Post, Like
+from .serializers import PostSerializer, LikeSerializer
 from django.db.models import Q
 
 
@@ -56,3 +56,38 @@ def delete_post(request, id):
     post = Post.objects.get(id=id)
     post.delete()
     return Response("Post deleted")
+
+
+@api_view(["GET"])
+def get_likes(request, user):
+    likes = Like.objects.filter(user=user)
+    serializer = LikeSerializer(likes, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def create_like(request):
+    serializer = LikeSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response("Object created")
+
+
+@api_view(["POST"])
+def like_post(request):
+    serializer = LikeSerializer(data=request.data)
+    if serializer.is_valid():
+        print("valid")
+        user = serializer.data.get("user")
+        id = serializer.data.get("post")[0]
+        like = Like.objects.get(user=user)
+        post = Post.objects.get(id=id)
+        if like.post.contains(post):
+            like.post.remove(post)
+        else:
+            like.post.add(post)
+        like.save()
+        return Response("Feedback recorded")
+    else:
+        print(serializer.errors)
+        return Response("Something went wrong")
