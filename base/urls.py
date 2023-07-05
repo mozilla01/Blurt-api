@@ -11,4 +11,6 @@ urlpatterns = [
     path("get-likes/<str:user>/", views.get_likes, name="get-likes"),
     path("create-like-object/", views.create_like, name="create-like-object"),
     path("like-post/", views.like_post, name="like-post"),
+    path("replies/<str:id>/", views.get_replies, name="get-replies"),
+    path("send-reply/", views.send_reply, name="send-reply"),
 ]

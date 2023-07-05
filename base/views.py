@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Post, Like
-from .serializers import PostSerializer, LikeSerializer
+from .models import Post, Like, Reply
+from .serializers import PostSerializer, LikeSerializer, ReplySerializer
 from django.db.models import Q
 
 
@@ -91,3 +91,22 @@ def like_post(request):
     else:
         print(serializer.errors)
         return Response("Something went wrong")
+
+
+@api_view(["GET"])
+def get_replies(request, id):
+    replies = Reply.objects.filter(post=id).order_by("-created")
+    serializer = ReplySerializer(replies, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def send_reply(request):
+    serializer = ReplySerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        print(serializer.errors)
+        return Response("Something went wrong...")
