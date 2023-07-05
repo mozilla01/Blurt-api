@@ -110,3 +110,10 @@ def send_reply(request):
     else:
         print(serializer.errors)
         return Response("Something went wrong...")
+
+
+@api_view(["POST"])
+def delete_reply(request, id):
+    reply = Reply.objects.get(id=id)
+    reply.delete()
+    return Response("Reply deleted")
