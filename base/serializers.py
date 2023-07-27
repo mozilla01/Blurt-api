@@ -4,6 +4,7 @@ from .models import Post, Like, Reply
 
 class PostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField("get_likes")
+    image = serializers.ImageField(required=False)
 
     def get_likes(self, post):
         return Like.objects.filter(post=post.id).count()
