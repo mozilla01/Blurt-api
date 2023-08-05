@@ -5,6 +5,7 @@ from .models import Post, Like, Reply
 from .serializers import PostSerializer, LikeSerializer, ReplySerializer
 from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser
+import os
 
 
 @api_view(["GET"])
@@ -56,6 +57,9 @@ def edit_post(request, id):
 @api_view(["DELETE"])
 def delete_post(request, id):
     post = Post.objects.get(id=id)
+    if post.image:
+        if os.path.isfile(post.image.path):
+            os.remove(post.image.path)
     post.delete()
     return Response("Post deleted")
 
