@@ -1,8 +1,7 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
-from .models import Post, Like, Reply
-from .serializers import PostSerializer, LikeSerializer, ReplySerializer
+from .models import Post, Like 
+from .serializers import PostSerializer, LikeSerializer 
 from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
@@ -21,7 +20,7 @@ def api_overview(request):
 @api_view(["GET"])
 def posts(request):
     q = request.GET.get("q") if request.GET.get("q") is not None else ""
-    posts = Post.objects.filter(Q(user__icontains=q)).order_by("-created")
+    posts = Post.objects.filter(Q(user__icontains=q), type="P").order_by("-created")
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
@@ -101,14 +100,14 @@ def like_post(request):
 
 @api_view(["GET"])
 def get_replies(request, id):
-    replies = Reply.objects.filter(post=id).order_by("-created")
-    serializer = ReplySerializer(replies, many=True)
+    replies = Post.objects.filter(parent=id).order_by("-created")
+    serializer = PostSerializer(replies, many=True)
     return Response(serializer.data)
 
 
 @api_view(["POST"])
 def send_reply(request):
-    serializer = ReplySerializer(data=request.data)
+    serializer = PostSerializer(data=request.data)
 
     if serializer.is_valid():
         serializer.save()
@@ -120,6 +119,6 @@ def send_reply(request):
 
 @api_view(["POST"])
 def delete_reply(request, id):
-    reply = Reply.objects.get(id=id)
+    reply = Post.objects.get(id=id)
     reply.delete()
     return Response("Reply deleted")

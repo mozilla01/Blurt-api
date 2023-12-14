@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Like, Reply
+from .models import Post, Like
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class PostSerializer(serializers.ModelSerializer):
         return Like.objects.filter(post=post.id).count()
 
     def no_of_comments(self, post):
-        return Reply.objects.filter(post=post.id).count()
+        return Post.objects.filter(parent=post.id).count()
 
     class Meta:
         model = Post
@@ -21,10 +21,4 @@ class PostSerializer(serializers.ModelSerializer):
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
-        fields = "__all__"
-
-
-class ReplySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reply
         fields = "__all__"

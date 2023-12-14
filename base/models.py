@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 
 def upload_to(instance, filename):
@@ -7,6 +8,17 @@ def upload_to(instance, filename):
 
 
 class Post(models.Model):
+
+    class Type(models.TextChoices):
+        REPLY = 'R', _('Reply')
+        POST = 'P', _('Post')
+
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    type = models.CharField(
+            max_length=1,
+            choices=Type.choices,
+            default=Type.POST,
+            )
     user = models.CharField(max_length=25)
     content = models.TextField(max_length=500)
     created = models.DateTimeField(default=timezone.now)
@@ -20,9 +32,3 @@ class Like(models.Model):
     user = models.CharField(max_length=25)
     post = models.ManyToManyField(Post, blank=True, related_name="posts")
 
-
-class Reply(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.CharField(max_length=25)
-    content = models.TextField(max_length=100)
-    created = models.DateTimeField(default=timezone.now)
